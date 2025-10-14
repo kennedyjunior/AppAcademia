@@ -1,0 +1,33 @@
+﻿<Window x:Class="AppAcademia.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Academia API Client" Height="500" Width="600">
+    <StackPanel Margin="20">
+        <TextBlock Text="Sistema de Gerenciamento de Academia" FontSize="16" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <TextBlock Text="Tipo de Recurso:" FontWeight="Bold"/>
+        <ComboBox x:Name="EscolhaAcoes" SelectionChanged="EscolhaAcoes_SelectionChanged" Margin="0,5,0,10"/>
+
+        <TextBlock Text="Ação:" FontWeight="Bold"/>
+        <ComboBox x:Name="EscolhasEndpoint" SelectionChanged="EscolhasEndpoint_SelectionChanged" Margin="0,5,0,10"/>
+
+        <StackPanel x:Name="painelId" Visibility="Collapsed">
+            <TextBlock Text="ID:" FontWeight="Bold"/>
+            <TextBox x:Name="txtId" Margin="0,5,0,10"/>
+        </StackPanel>
+
+        <StackPanel x:Name="painelDados" Visibility="Collapsed">
+            <TextBlock Text="Dados (JSON):" FontWeight="Bold"/>
+            <TextBox x:Name="txtDados" Height="80" TextWrapping="Wrap" Margin="0,5,0,5"/>
+            <Button x:Name="BtnExemploDados" Content="Preencher com Exemplo" 
+                    Click="BtnExemploDados_Click" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button x:Name="BtnExecutar" Content="Executar" Click="BtnExecutar_Click" 
+                    Background="LightBlue" Padding="15,5" FontWeight="Bold" Margin="0,0,10,0"/>
+            <Button x:Name="BtnCancelar" Content="Cancelar" Click="BtnCancelar_Click" 
+                    Background="LightCoral" Padding="15,5" FontWeight="Bold"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
