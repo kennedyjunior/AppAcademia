@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -24,14 +21,13 @@ namespace AppAcademia
 
         private void InitializeComboBoxes()
         {
-            // Inicializa o combobox de tipos de recurso
-            EscolhaAcoes.Items.Add(new ComboBoxItem { Content = "PLANO" });
-            EscolhaAcoes.Items.Add(new ComboBoxItem { Content = "TREINADOR" });
-            EscolhaAcoes.Items.Add(new ComboBoxItem { Content = "ALUNO" });
+            EscolhaAcoes.Items.Add("PLANO");
+            EscolhaAcoes.Items.Add("TREINADOR");
+            EscolhaAcoes.Items.Add("ALUNO");
 
-            if (EscolhaAcoes.Items.Count > 0)
-                EscolhaAcoes.SelectedIndex = 0;
+            EscolhaAcoes.SelectedIndex = 0;
         }
+
 
         private string MapearEndpoint(string tipoRecurso, string acao)
         {
@@ -87,14 +83,9 @@ namespace AppAcademia
 
         private void EscolhaAcoes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (EscolhaAcoes.SelectedItem is ComboBoxItem selectedItem)
+            if (EscolhaAcoes.SelectedItem is string tipo)
             {
-                string? tipo = selectedItem.Content?.ToString();
-
-                if (string.IsNullOrEmpty(tipo))
-                    return;
-
-                EscolhasEndpoint.Items.Clear();
+                EscolhasEndpoint.Items.Clear(); ;
 
                 switch (tipo)
                 {
@@ -128,35 +119,32 @@ namespace AppAcademia
 
         private void EscolhasEndpoint_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Mostra/oculta input de ID baseado na seleção
-            if (EscolhasEndpoint.SelectedItem is ComboBoxItem selectedItem)
+            if (EscolhasEndpoint.SelectedItem is string acao)
             {
-                string? acao = selectedItem.Content?.ToString();
-
-                if (string.IsNullOrEmpty(acao))
-                    return;
-
                 bool precisaId = acao.Contains("PELO ID") || acao.Contains("ALTERAR");
                 painelId.Visibility = precisaId ? Visibility.Visible : Visibility.Collapsed;
 
-                // Mostra input de dados para operações CREATE/UPDATE
                 bool precisaDados = acao.StartsWith("CRIAR") || acao.StartsWith("ALTERAR");
                 painelDados.Visibility = precisaDados ? Visibility.Visible : Visibility.Collapsed;
+
+                painelFormAluno.Visibility = (acao.StartsWith("CRIAR") || acao.StartsWith("ALTERAR")) &&
+                                             EscolhaAcoes.Text == "ALUNO"
+                                             ? Visibility.Visible
+                                             : Visibility.Collapsed;
             }
         }
+
 
         private async void BtnExecutar_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Verificação mais direta
                 if (EscolhaAcoes.SelectedIndex == -1 || EscolhasEndpoint.SelectedIndex == -1)
                 {
                     MessageBox.Show("Selecione um tipo e uma ação.");
                     return;
                 }
 
-                // Pega o texto diretamente dos ComboBox
                 string tipo = EscolhaAcoes.Text;
                 string acao = EscolhasEndpoint.Text;
 
@@ -166,7 +154,6 @@ namespace AppAcademia
                     return;
                 }
 
-                // Resto do código permanece igual...
                 string endpoint = MapearEndpoint(tipo, acao);
                 HttpMethod metodo = MapearMetodoHttp(acao);
 
@@ -206,6 +193,8 @@ namespace AppAcademia
                 MessageBox.Show($"Erro: {ex.Message}");
             }
         }
+
+        
 
         private async Task ExecutarRequisicao(HttpMethod metodo, string endpoint, string jsonData = "", CancellationToken cancellationToken = default)
         {
@@ -276,19 +265,14 @@ namespace AppAcademia
             }
             catch
             {
-                return json; // Retorna original se não for JSON
+                return json;
             }
         }
 
         private void BtnExemploDados_Click(object sender, RoutedEventArgs e)
         {
-            if (EscolhaAcoes.SelectedItem is ComboBoxItem tipoItem)
+            if (EscolhaAcoes.SelectedItem is string tipo)
             {
-                string? tipo = tipoItem.Content?.ToString();
-
-                if (string.IsNullOrEmpty(tipo))
-                    return;
-
                 object exemplo = tipo switch
                 {
                     "PLANO" => new { nome = "Plano Premium", preco = 99.90, duracao = "6 meses" },
@@ -301,9 +285,41 @@ namespace AppAcademia
             }
         }
 
+
         private void BtnCancelar_Click(object sender, RoutedEventArgs e)
         {
             _cancellationTokenSource?.Cancel();
         }
+        private void BtnGerarJson_Click(object sender, RoutedEventArgs e)
+        {
+            var dados = new
+            {
+                nome = txtNome.Text,
+                email = txtEmail.Text,
+                planoId = int.TryParse(txtPlanoId.Text, out int id) ? id : 0
+            };
+
+            txtDados.Text = JsonConvert.SerializeObject(dados, Formatting.Indented);
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox tb)
+            {
+                switch (tb.Name)
+                {
+                    case "txtNome":
+                        phNome.Visibility = string.IsNullOrEmpty(tb.Text) ? Visibility.Visible : Visibility.Collapsed;
+                        break;
+                    case "txtEmail":
+                        phEmail.Visibility = string.IsNullOrEmpty(tb.Text) ? Visibility.Visible : Visibility.Collapsed;
+                        break;
+                    case "txtPlanoId":
+                        phPlano.Visibility = string.IsNullOrEmpty(tb.Text) ? Visibility.Visible : Visibility.Collapsed;
+                        break;
+                }
+            }
+        }
+
     }
 }
