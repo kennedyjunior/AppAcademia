@@ -18,4 +18,4 @@ C# - Linguagem de programação
 Pré-requisitos
 .NET 8.0 SDK
 Visual Studio 2022 ou VS Code
-API backend rodando em http://localhost:3000/api
+API backend rodando em http://localhost:3000/
